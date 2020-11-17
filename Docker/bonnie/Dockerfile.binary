@@ -1,8 +1,13 @@
 FROM nodesource/xenial
 
 WORKDIR /
+RUN apt-get update && \
+  apt-get install -y -q nginx
+EXPOSE 80
 COPY bonnie-bin.tgz .
 RUN tar xfzp bonnie-bin.tgz
 #ENTRYPOINT ["ls", "-l", "/usr/local/bonnie/sbin/"]
 RUN /usr/local/bonnie/sbin/bonnie++ -d /tmp -s 1536:1024 -n 100 -m docker -r 768 -u0:0 > result.txt
-RUN cat result.txt
+RUN tail -n 1 result.txt | /usr/local/bonnie/bin/bon_csv2html > /usr/share/nginx/html/result.html
+CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["cat", "/var/www/html/index.html"]
