@@ -1,0 +1,8 @@
+FROM nodesource/xenial
+
+WORKDIR /
+COPY bonnie-bin.tgz .
+RUN tar xfzp bonnie-bin.tgz
+#ENTRYPOINT ["ls", "-l", "/usr/local/bonnie/sbin/"]
+RUN /usr/local/bonnie/sbin/bonnie++ -d /tmp -s 1536:1024 -n 100 -m docker -r 768 -u0:0 > result.txt
+RUN cat result.txt

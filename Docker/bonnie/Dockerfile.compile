@@ -1,0 +1,21 @@
+FROM nodesource/xenial AS DEV
+
+WORKDIR /tmp
+RUN apt-get update && \
+  apt-get install -y -q apache2 gcc make g++
+
+COPY bonnie++_1.04.tgz .
+RUN tar xfzp bonnie++_1.04.tgz
+RUN cd bonnie++-1.04/ && \
+  ./configure --prefix=/usr/local/bonnie++ >/dev/null && \
+  make >/dev/null && \
+  make install
+
+FROM nodesource/xenial 
+#FROM busybox
+WORKDIR /opt/bonnie/bin
+COPY --from=DEV /usr/local/bonnie++/sbin/bonnie++ .
+COPY --from=DEV /usr/local/bonnie++/bin/bon_csv2html .
+
+#RUN bonnie\+\+ -d ./result -s 1536:1024 -n 100 -m hostname -r 768 -u0:0 > hostname.txt
+ENTRYPOINT ["./bonnie++", "-help"]
